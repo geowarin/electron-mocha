@@ -33,33 +33,39 @@ getOptions()
 // parse args
 var opts = args.parse(process.argv)
 
+for (var i = 0; i < opts.mainFile.length; i++) {
+  var file = opts.mainFile[i];
+  require(file);
+}
+
 var browserDataPath = path.join(os.tmpdir(), 'electron-mocha-' + Date.now().toString())
 app.setPath('userData', browserDataPath)
 
 app.on('ready', function () {
 
-    var win = window.createWindow({ height: 700, width: 1200, 'web-preferences': { 'web-security': false } })
-    var indexPath = path.resolve(path.join(__dirname, './renderer/index.html'))
-    // undocumented call in electron-window
-    win._loadUrlWithArgs(indexPath, opts, function () {})
-    // win.showUrl(indexPath, opts)
-    ipc.on('mocha-done', function (event, code) {
-      exit(code)
-    })
-    ipc.on('mocha-error', function (event, data) {
-      writeError(data)
-      exit(1)
-    })
+  var win = window.createWindow({height: 700, width: 1200, 'web-preferences': {'web-security': false}})
+  var indexPath = path.resolve(path.join(__dirname, './renderer/index.html'))
+  // undocumented call in electron-window
+  win._loadUrlWithArgs(indexPath, opts, function () {
+  })
+  // win.showUrl(indexPath, opts)
+  ipc.on('mocha-done', function (event, code) {
+    exit(code)
+  })
+  ipc.on('mocha-error', function (event, data) {
+    writeError(data)
+    exit(1)
+  })
 })
 
-function writeError (data) {
+function writeError(data) {
   process.stderr.write(util.format('\nError encountered in %s: %s\n%s',
     path.relative(process.cwd(), data.filename),
     data.message,
     data.stack))
 }
 
-function exit (code) {
+function exit(code) {
   fs.remove(browserDataPath, function (err) {
     if (err) console.error(err)
     process.exit(code)

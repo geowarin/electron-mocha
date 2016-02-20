@@ -8,6 +8,7 @@ var cwd = process.cwd()
 function parse (argv) {
   var globals = []
   var requires = []
+  var mainFiles = []
 
   program._name = 'electron-mocha'
   program
@@ -32,6 +33,7 @@ function parse (argv) {
     .option('--opts <path>', 'specify opts path', 'test/mocha.opts')
     .option('--recursive', 'include sub directories')
     .option('--renderer', 'run tests in renderer process')
+    .option('--mainFile <file>', 'Additional file to be run in the main process')
 
   program.on('globals', function (val) {
     globals = globals.concat(list(val))
@@ -45,11 +47,18 @@ function parse (argv) {
     requires.push(mod)
   })
 
+  program.on('mainFile', function (mod) {
+    var abs = fs.existsSync(mod) || fs.existsSync(mod + '.js')
+    if (abs) mod = resolve(mod)
+    mainFiles.push(mod)
+  })
+
   program.parse(process.argv)
   var argData = JSON.parse(JSON.stringify(program))
   argData.files = argData.args
 
   argData.require = requires
+  argData.mainFile = mainFiles
 
   // delete unused
   ;['commands', 'options', '_execs', '_args', '_name', '_events', '_usage', '_version', '_eventsCount', 'args'].forEach(function (key) {
