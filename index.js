@@ -37,12 +37,7 @@ var browserDataPath = path.join(os.tmpdir(), 'electron-mocha-' + Date.now().toSt
 app.setPath('userData', browserDataPath)
 
 app.on('ready', function () {
-  if (!opts.renderer) {
-    opts.require.forEach(function (mod) {
-      require(mod)
-    })
-    mocha.run(opts, exit)
-  } else {
+
     var win = window.createWindow({ height: 700, width: 1200, 'web-preferences': { 'web-security': false } })
     var indexPath = path.resolve(path.join(__dirname, './renderer/index.html'))
     // undocumented call in electron-window
@@ -55,7 +50,6 @@ app.on('ready', function () {
       writeError(data)
       exit(1)
     })
-  }
 })
 
 function writeError (data) {

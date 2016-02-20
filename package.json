@@ -4,7 +4,7 @@
   "description": "Mocha tests in Electron.",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "node bin/electron-mocha"
   },
   "bin": {
     "electron-mocha": "./bin/electron-mocha"
